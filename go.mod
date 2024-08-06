@@ -4,6 +4,7 @@ go 1.22.5
 
 require (
 	gioui.org v0.7.1
+	gioui.org/x v0.7.1
 	golang.org/x/exp/shiny v0.0.0-20240707233637-46b078467d37
 )
 

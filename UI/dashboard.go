@@ -2,42 +2,45 @@ package UI
 
 import (
 	"gioui.org/layout"
-	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
+	"gioui.org/x/component"
 )
 
-var (
-	menuItems = []string{
-		"Auth API",
-		"Certs API",
-		"ID API",
-		"Todo API",
-		"WhoAmI",
-	}
-	menuList = widget.List{
-		List: layout.List{
-			Axis: layout.Vertical,
-		},
-	}
-)
-
-func Workspace(gtx layout.Context, th *material.Theme) layout.Dimensions {
-	return layout.Flex{}.Layout(gtx,
+func LayoutToolbar(gtx layout.Context, th *material.Theme) layout.Dimensions {
+	return layout.Flex{
+		Axis: layout.Vertical,
+	}.Layout(gtx,
+		//layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+		//	return material.Button(th, &Button1, "Button 1").Layout(gtx)
+		//}),
+		//layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+		//	return material.Button(th, &Button2, "Button 2").Layout(gtx)
+		//}),
+		//layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+		//	return material.Button(th, &Button3, "Button 3").Layout(gtx)
+		//}),
 		layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-			return layout.Inset{Left: unit.Dp(16), Top: unit.Dp(16)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-				return material.List(th, &menuList).Layout(gtx, len(menuItems), func(gtx layout.Context, index int) layout.Dimensions {
-					return layout.UniformInset(unit.Dp(8)).Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-						btn := material.Button(th, new(widget.Clickable), menuItems[index])
-						return btn.Layout(gtx)
-					})
+			var navList widget.List
+			//var selected int
+
+			navItems := []component.NavItem{
+				component.NavItem{Name: "Home", Icon: nil},
+				//component.NavItem{Name: "Profile", Icon: nil},
+				//component.NavItem{Name: "Settings", Icon: nil},
+			}
+
+			for _, item := range navItems {
+				navList.Layout(gtx, 1, func(gtx layout.Context, index int) layout.Dimensions {
+					button := material.Button(th, &widget.Clickable{}, item.Name)
+					//if widget.Clickable{}.Clicked(gtx) {
+					//	selected = i
+					//}
+					return button.Layout(gtx)
 				})
-			})
-		}),
-		layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
-			return layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
-				return material.H6(th, "Main Content Area").Layout(gtx)
-			})
+			}
+
+			return layout.Dimensions{}
 		}),
 	)
 }

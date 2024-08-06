@@ -88,7 +88,7 @@ func loop(w *app.Window) error {
 			if UI.LoginScreen {
 				UI.LayoutLogin(gtx, th)
 			} else {
-				UI.Workspace(gtx, th)
+				UI.LayoutToolbar(gtx, th)
 			}
 			e.Frame(gtx.Ops)
 		}
