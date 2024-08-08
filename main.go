@@ -3,10 +3,15 @@ package main
 import (
 	"Gio_UI/UI"
 	page "Gio_UI/UI/app"
-	header "Gio_UI/UI/app/header"
+	"Gio_UI/UI/app/Tree"
+	"Gio_UI/UI/app/header"
+	"Gio_UI/UI/app/menu"
 	app2 "Gio_UI/UI/app/toolbar"
+	"Gio_UI/UI/icon"
 	"flag"
-	//"gioui.org/example/component/pages/appbar"
+	"gioui.org/x/component"
+	"image/color"
+
 	"gioui.org/widget/material"
 	"log"
 	"os"
@@ -20,6 +25,7 @@ import (
 func main() {
 	flag.Parse()
 	UI.ProgressIncrementer = make(chan float32)
+
 	go func() {
 		for {
 			time.Sleep(time.Second)
@@ -41,12 +47,31 @@ func main() {
 func loop(w *app.Window) error {
 	th := material.NewTheme()
 	var ops op.Ops
+	menuItems := []component.MenuItemStyle{
+		{Icon: icon.SettingsIcon,
+			Label:      material.Label(th, unit.Sp(16), "Menu 1"),
+			HoverColor: color.NRGBA{R: 0xFF, G: 0x00, B: 0x00, A: 0xFF}, // Màu nền đỏ khi hover
+			//LabelInset: layout.Inset{Top: unit.Dp(10), Bottom: unit.Dp(10), Left: unit.Dp(10), Right: unit.Dp(10)},
+		},
+		{
+			Label:      material.Label(th, unit.Sp(16), "Menu 2"),
+			HoverColor: color.NRGBA{R: 0x00, G: 0xFF, B: 0x00, A: 0xFF}, // Màu nền xanh lá khi hover
+			//LabelInset: layout.Inset{Top: unit.Dp(10), Bottom: unit.Dp(10), Left: unit.Dp(10), Right: unit.Dp(10)},
+		},
+		{
+			Label:      material.Label(th, unit.Sp(16), "Menu 3"),
+			HoverColor: color.NRGBA{R: 0x00, G: 0x00, B: 0xFF, A: 0xFF}, // Màu nền xanh dương khi hover
+
+			//LabelInset: layout.Inset{Top: unit.Dp(10), Bottom: unit.Dp(10), Left: unit.Dp(10), Right: unit.Dp(10)},
+		},
+	}
 	router := page.NewRouter()
 	router.Register(0, header.New(&router))
 	router.Register(1, app2.New(&router))
+	//router.Register(3, dashboard.New(&router))
 	//router.Register(2, textfield.New(&router))
-	//router.Register(3, menu.New(&router))
-	//router.Register(4, discloser.New(&router))
+	router.Register(3, menu.New(&router))
+	router.Register(4, Tree.New(&router))
 	//router.Register(5, about.New(&router))
 	for {
 		e := w.Event()
@@ -57,9 +82,10 @@ func loop(w *app.Window) error {
 			gtx := app.NewContext(&ops, e)
 			if UI.LoginScreen {
 				//UI.LayoutLogin(gtx, th)
+
 				router.Layout(gtx, th)
 			} else {
-				router.Layout(gtx, th)
+				UI.DisplayMenu(gtx, th, menuItems)
 			}
 			e.Frame(gtx.Ops)
 		}

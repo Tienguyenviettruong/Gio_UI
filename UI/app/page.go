@@ -31,7 +31,6 @@ type Router struct {
 
 func NewRouter() Router {
 	modal := component.NewModal()
-
 	nav := component.NewNav("Dashboard", "")
 
 	modalNav := component.ModalNavFrom(&nav, modal)
