@@ -4,7 +4,9 @@ import (
 	"Gio_UI/UI"
 	page "Gio_UI/UI/app"
 	"Gio_UI/UI/app/Tree"
+	"Gio_UI/UI/app/chart"
 	"Gio_UI/UI/app/header"
+	"Gio_UI/UI/app/importF"
 	"Gio_UI/UI/app/menu"
 	app2 "Gio_UI/UI/app/toolbar"
 	"Gio_UI/UI/icon"
@@ -68,11 +70,12 @@ func loop(w *app.Window) error {
 	router := page.NewRouter()
 	router.Register(0, header.New(&router))
 	router.Register(1, app2.New(&router))
+	router.Register(2, importF.New(&router, th))
 	//router.Register(3, dashboard.New(&router))
 	//router.Register(2, textfield.New(&router))
 	router.Register(3, menu.New(&router))
 	router.Register(4, Tree.New(&router))
-	//router.Register(5, about.New(&router))
+	router.Register(5, chart.New(&router))
 	for {
 		e := w.Event()
 		switch e := e.(type) {
