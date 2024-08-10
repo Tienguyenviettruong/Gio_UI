@@ -6,6 +6,7 @@ require (
 	gioui.org v0.7.1
 	gioui.org/x v0.7.1
 	github.com/fogleman/gg v1.3.0
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/wcharczuk/go-chart/v2 v2.1.1
 	golang.org/x/exp/shiny v0.0.0-20240707233637-46b078467d37
 )

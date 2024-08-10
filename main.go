@@ -8,6 +8,7 @@ import (
 	"Gio_UI/UI/app/header"
 	"Gio_UI/UI/app/importF"
 	"Gio_UI/UI/app/menu"
+	"Gio_UI/UI/app/table"
 	app2 "Gio_UI/UI/app/toolbar"
 	"Gio_UI/UI/icon"
 	"flag"
@@ -76,6 +77,7 @@ func loop(w *app.Window) error {
 	router.Register(3, menu.New(&router))
 	router.Register(4, Tree.New(&router))
 	router.Register(5, chart.New(&router))
+	router.Register(6, Table.New(&router))
 	for {
 		e := w.Event()
 		switch e := e.(type) {
