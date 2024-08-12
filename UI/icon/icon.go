@@ -68,3 +68,7 @@ var ChartIcon *widget.Icon = func() *widget.Icon {
 	icon, _ := widget.NewIcon(icons.HardwareDesktopWindows)
 	return icon
 }()
+var SearchIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.ActionSearch)
+	return icon
+}()

@@ -150,18 +150,19 @@ func (p *Page) drawTable(gtx layout.Context, th *material.Theme, rows, cols int)
 		x := float32(j) * cellWidth
 		drawLine(gtx, x, 0, x, screenHeight, lineColor, strokeWidth)
 	}
-	//drawText(gtx, fmt.Sprintf("Cell %d,%d", 1, 1), 0, 0, th)
+	drawText(gtx, fmt.Sprintf("Cell %d,%d", 1, 1), 0, 0, th)
 	//drawText(gtx, fmt.Sprintf("Cell %d,%d", 1, 2), 400, 0, th)
-	//drawText(gtx, fmt.Sprintf("Cell %d,%d", 2, 1), 0, 60, th)
-	//drawText(gtx, fmt.Sprintf("Cell %d,%d", 2, 2), 400, 60, th)
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			x := float32(j) * cellWidth
-			y := float32(i) * rowHeight
-			drawText(gtx, fmt.Sprintf("Cell %d,%d", i+1, j+1), x, y, th)
-			fmt.Println("Cell %d,%d", i+1, j+1, x, y)
-		}
-	}
+	drawText(gtx, fmt.Sprintf("Cell %d,%d", 2, 1), 0, 60, th)
+	drawText(gtx, fmt.Sprintf("Cell %d,%d", 2, 2), 400, 0, th)
+	drawText(gtx, fmt.Sprintf("Cell %d,%d", 3, 1), 400, 60, th)
+	//for i := 0; i < rows; i++ {
+	//	for j := 0; j < cols; j++ {
+	//		x := float32(j) * cellWidth
+	//		y := float32(i) * rowHeight
+	//		drawText(gtx, fmt.Sprintf("Cell %d,%d", i+1, j+1), x, y, th)
+	//		fmt.Println("Cell %d,%d", i+1, j+1, x, y)
+	//	}
+	//}
 }
 
 func drawLine(gtx layout.Context, x1, y1, x2, y2 float32, clr color.NRGBA, width float32) {
