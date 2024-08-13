@@ -65,10 +65,22 @@ var VisibilityIcon *widget.Icon = func() *widget.Icon {
 	return icon
 }()
 var ChartIcon *widget.Icon = func() *widget.Icon {
-	icon, _ := widget.NewIcon(icons.HardwareDesktopWindows)
+	icon, _ := widget.NewIcon(icons.EditorInsertChart)
 	return icon
 }()
 var SearchIcon *widget.Icon = func() *widget.Icon {
 	icon, _ := widget.NewIcon(icons.ActionSearch)
+	return icon
+}()
+var PreviousIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.ImageNavigateBefore)
+	return icon
+}()
+var NextIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.ImageNavigateNext)
+	return icon
+}()
+var DeleteIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.ActionDelete)
 	return icon
 }()

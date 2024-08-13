@@ -90,7 +90,7 @@ func loop(w *app.Window) error {
 
 				router.Layout(gtx, th)
 			} else {
-				//UI.DisplayMenu(gtx, th, menuItems)
+				UI.DisplayMenu(gtx, th, menuItems)
 			}
 			e.Frame(gtx.Ops)
 		}

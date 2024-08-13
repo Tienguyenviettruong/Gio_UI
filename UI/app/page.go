@@ -98,7 +98,7 @@ func (r *Router) Layout(gtx layout.Context, th *material.Theme) layout.Dimension
 	content := layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
 		return layout.Flex{}.Layout(gtx,
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-				gtx.Constraints.Max.X /= 5
+				gtx.Constraints.Max.X /= 6
 				return r.NavDrawer.Layout(gtx, th, &r.NavAnim)
 			}),
 			layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
