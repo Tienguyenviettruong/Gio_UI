@@ -46,8 +46,6 @@ type Page struct {
 	ShowConfirm            bool
 }
 
-// New constructs a Page with the provided router.
-
 var _ page.Page = &Page{}
 
 func (p *Page) Actions() []component.AppBarAction {
@@ -91,6 +89,8 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 		}
 		if p.DelBtns[i-start].Clicked(gtx) {
 			log.Printf("Delete button clicked for ID: %d", p.Data[i].ID)
+			p.SelectedRowToDelete = &p.Data[i] // Ghi nhận dòng cần xóa
+			p.ShowDeleteConfirmation = true
 		}
 	}
 
@@ -108,7 +108,9 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 			}
 		})
 	})
-
+	if p.ShowDeleteConfirmation {
+		return p.LayoutDeleteConfirmation(gtx, th)
+	}
 	var pagination layout.Dimensions
 	pagination = layout.SE.Layout(gtx, func(gtx C) D {
 		return layout.Flex{Axis: layout.Horizontal, Alignment: layout.Middle}.Layout(gtx,
@@ -160,6 +162,69 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 			return pagination
 		}),
 	)
+}
+func (p *Page) LayoutDeleteConfirmation(gtx C, th *material.Theme) D {
+	prompt := "Are you sure you want to delete this record?"
+	backgroundColor := color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF}
+	dims := layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+		paint.ColorOp{Color: backgroundColor}.Add(gtx.Ops)
+		defer clip.Rect{
+			Max: image.Point{
+				X: gtx.Constraints.Max.X,
+				Y: gtx.Constraints.Max.Y,
+			},
+		}.Push(gtx.Ops).Pop()
+		paint.PaintOp{}.Add(gtx.Ops)
+		return widget.Border{
+			Color:        color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF}, // Border color
+			CornerRadius: unit.Dp(8),
+			Width:        unit.Dp(2),
+		}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+			return layout.Inset{
+				Top:    20,
+				Bottom: 20,
+				Left:   20,
+				Right:  20,
+			}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+				return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+						return material.Body1(th, prompt).Layout(gtx)
+					}),
+					layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+						return layout.Inset{Top: unit.Dp(20)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+							return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
+								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+									btn := material.Button(th, &p.ConfirmDeleteBtn, "Yes")
+									if p.ConfirmDeleteBtn.Clicked(gtx) {
+										if p.SelectedRowToDelete != nil {
+											err := p.deleteDataByID("UI/access.sqlite", p.SelectedRowToDelete.ID)
+											if err != nil {
+												log.Printf("Error deleting data: %v", err)
+											} else {
+												p.Data = p.readDataFromDB("UI/access.sqlite")
+											}
+										}
+										p.ShowDeleteConfirmation = false
+										p.SelectedRowToDelete = nil
+									}
+									return layout.Inset{Right: unit.Dp(10)}.Layout(gtx, btn.Layout)
+								}),
+								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
+									btn := material.Button(th, &p.CancelDeleteBtn, "No")
+									if p.CancelDeleteBtn.Clicked(gtx) {
+										p.ShowDeleteConfirmation = false
+										p.SelectedRowToDelete = nil
+									}
+									return btn.Layout(gtx)
+								}),
+							)
+						})
+					}),
+				)
+			})
+		})
+	})
+	return dims
 }
 
 func (p *Page) LayoutColumnHeaders(gtx C, th *material.Theme) D {

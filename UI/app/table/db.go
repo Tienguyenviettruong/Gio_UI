@@ -113,47 +113,13 @@ func (p *Page) searchDataByID(dbFile, searchID string) []DataRow {
 
 	return data
 }
-func (p *Page) deleteData(id int) {
-	// Kết nối đến cơ sở dữ liệu
-	db, err := sql.Open("sqlite3", "UI/access.sqlite")
+func (p *Page) deleteDataByID(dbPath string, id int) error {
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
-		log.Fatalf("Failed to open database: %v", err)
-		return
-	}
-	defer db.Close()
-
-	// Câu lệnh SQL để xóa dữ liệu theo ID
-	stmt, err := db.Prepare("DELETE FROM tbl_fileinfo WHERE id = ?")
-	if err != nil {
-		log.Fatalf("Failed to prepare statement: %v", err)
-		return
-	}
-	defer stmt.Close()
-
-	// Thực thi câu lệnh SQL
-	_, err = stmt.Exec(id)
-	if err != nil {
-		log.Fatalf("Failed to execute statement: %v", err)
-		return
-	}
-
-	// Đăng nhập thông báo thành công (có thể thay thế bằng thông báo giao diện người dùng)
-	log.Printf("Deleted record with ID %d", id)
-}
-func (p *Page) DeleteData(id int) {
-	// Xử lý xóa dữ liệu từ cơ sở dữ liệu
-	// Ví dụ:
-	db, err := sql.Open("sqlite3", "UI/access.sqlite")
-	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer db.Close()
 
 	_, err = db.Exec("DELETE FROM tbl_fileinfo WHERE id = ?", id)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Cập nhật dữ liệu sau khi xóa
-	p.Data = p.readDataFromDB("UI/access.sqlite")
+	return err
 }
