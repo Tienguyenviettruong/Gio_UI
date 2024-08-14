@@ -84,3 +84,11 @@ var DeleteIcon *widget.Icon = func() *widget.Icon {
 	icon, _ := widget.NewIcon(icons.ActionDelete)
 	return icon
 }()
+var FolderIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.FileFolder)
+	return icon
+}()
+var ImportIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.FileFileUpload)
+	return icon
+}()

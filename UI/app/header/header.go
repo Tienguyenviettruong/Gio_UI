@@ -84,8 +84,8 @@ func (p *Page) Overflow() []component.OverflowAction {
 
 func (p *Page) NavItem() component.NavItem {
 	return component.NavItem{
-		Name: "App Bar Features",
-		Icon: icon.HomeIcon,
+		Name: "Setting",
+		Icon: icon.SettingsIcon,
 	}
 }
 

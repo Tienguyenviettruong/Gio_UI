@@ -16,35 +16,13 @@ import (
 	"image"
 	"image/color"
 	"log"
+	"unicode"
 )
 
 type (
 	C = layout.Context
 	D = layout.Dimensions
 )
-
-type Page struct {
-	widget.List
-	*page.Router
-	ReadBtn                widget.Clickable
-	SearchBtn              widget.Clickable
-	Data                   []DataRow
-	SearchEditor           widget.Editor
-	CurrentPage            int
-	RowsPerPage            int
-	PreviousBtn            widget.Clickable
-	NextBtn                widget.Clickable
-	SearchID               string
-	ShowDeleteConfirmation bool
-	SelectedRowToDelete    *DataRow
-	ConfirmDeleteBtn       widget.Clickable
-	CancelDeleteBtn        widget.Clickable
-	EditBtns               []widget.Clickable
-	AddBtns                []widget.Clickable
-	DelBtns                []widget.Clickable
-	DeleteID               int // ID của bản ghi cần xóa
-	ShowConfirm            bool
-}
 
 var _ page.Page = &Page{}
 
@@ -65,8 +43,6 @@ func (p *Page) NavItem() component.NavItem {
 
 func (p *Page) Layout(gtx C, th *material.Theme) D {
 	p.List.Axis = layout.Vertical
-
-	// Xử lý tìm kiếm và đọc dữ liệu
 	if p.SearchEditor.Text() != "" && p.SearchBtn.Clicked(gtx) {
 		p.SearchID = p.SearchEditor.Text()
 		p.Data = p.searchDataByID("UI/access.sqlite", p.SearchID)
@@ -83,13 +59,15 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 	for i := start; i < end; i++ {
 		if p.EditBtns[i-start].Clicked(gtx) {
 			log.Printf("Edit button clicked for ID: %d", p.Data[i].ID)
+			p.SelectedRow = &p.Data[i] // Ghi nhận dòng cần chỉnh sửa
+			p.ShowEditConfirmation = true
 		}
 		if p.AddBtns[i-start].Clicked(gtx) {
 			log.Printf("Add button clicked for ID: %d", p.Data[i].ID)
 		}
 		if p.DelBtns[i-start].Clicked(gtx) {
 			log.Printf("Delete button clicked for ID: %d", p.Data[i].ID)
-			p.SelectedRowToDelete = &p.Data[i] // Ghi nhận dòng cần xóa
+			p.SelectedRow = &p.Data[i] // Ghi nhận dòng cần xóa
 			p.ShowDeleteConfirmation = true
 		}
 	}
@@ -110,6 +88,9 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 	})
 	if p.ShowDeleteConfirmation {
 		return p.LayoutDeleteConfirmation(gtx, th)
+	}
+	if p.ShowEditConfirmation {
+		return p.LayoutEditConfirmation(gtx, th)
 	}
 	var pagination layout.Dimensions
 	pagination = layout.SE.Layout(gtx, func(gtx C) D {
@@ -166,12 +147,12 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 func (p *Page) LayoutDeleteConfirmation(gtx C, th *material.Theme) D {
 	prompt := "Are you sure you want to delete this record?"
 	backgroundColor := color.NRGBA{R: 0xFF, G: 0xFF, B: 0xFF, A: 0xFF}
-	dims := layout.Center.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
+	dims := layout.Center.Layout(gtx, func(gtx C) D {
 		paint.ColorOp{Color: backgroundColor}.Add(gtx.Ops)
 		defer clip.Rect{
 			Max: image.Point{
-				X: gtx.Constraints.Max.X,
-				Y: gtx.Constraints.Max.Y,
+				X: 400,
+				Y: 120,
 			},
 		}.Push(gtx.Ops).Pop()
 		paint.PaintOp{}.Add(gtx.Ops)
@@ -194,10 +175,10 @@ func (p *Page) LayoutDeleteConfirmation(gtx C, th *material.Theme) D {
 						return layout.Inset{Top: unit.Dp(20)}.Layout(gtx, func(gtx layout.Context) layout.Dimensions {
 							return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
 								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-									btn := material.Button(th, &p.ConfirmDeleteBtn, "Yes")
-									if p.ConfirmDeleteBtn.Clicked(gtx) {
-										if p.SelectedRowToDelete != nil {
-											err := p.deleteDataByID("UI/access.sqlite", p.SelectedRowToDelete.ID)
+									btn := material.Button(th, &p.ConfirmBtn, "Yes")
+									if p.ConfirmBtn.Clicked(gtx) {
+										if p.SelectedRow != nil {
+											err := p.deleteDataByID("UI/access.sqlite", p.SelectedRow.ID)
 											if err != nil {
 												log.Printf("Error deleting data: %v", err)
 											} else {
@@ -205,15 +186,16 @@ func (p *Page) LayoutDeleteConfirmation(gtx C, th *material.Theme) D {
 											}
 										}
 										p.ShowDeleteConfirmation = false
-										p.SelectedRowToDelete = nil
+										p.SelectedRow = nil
 									}
 									return layout.Inset{Right: unit.Dp(10)}.Layout(gtx, btn.Layout)
 								}),
 								layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-									btn := material.Button(th, &p.CancelDeleteBtn, "No")
-									if p.CancelDeleteBtn.Clicked(gtx) {
+									btn := material.Button(th, &p.CancelBtn, "No")
+									btn.Background = color.NRGBA{R: 255, G: 200, B: 100, A: 255}
+									if p.CancelBtn.Clicked(gtx) {
 										p.ShowDeleteConfirmation = false
-										p.SelectedRowToDelete = nil
+										p.SelectedRow = nil
 									}
 									return btn.Layout(gtx)
 								}),
@@ -380,4 +362,138 @@ func (p *Page) DrawHorizontalLine(gtx C) D {
 			Y: int(lineHeight),
 		},
 	}
+}
+
+func (p *Page) LayoutEditConfirmation(gtx C, th *material.Theme) D {
+	backgroundColor := color.NRGBA{R: 255, G: 255, B: 255, A: 255}
+
+	paint.ColorOp{Color: backgroundColor}.Add(gtx.Ops)
+	defer clip.Rect{
+		Max: image.Point{X: gtx.Constraints.Max.X, Y: gtx.Constraints.Max.Y},
+	}.Push(gtx.Ops).Pop()
+	paint.PaintOp{}.Add(gtx.Ops)
+
+	return layout.Inset{Right: unit.Dp(80), Top: unit.Dp(120), Bottom: unit.Dp(180)}.Layout(gtx, func(gtx C) D {
+		return widget.Border{
+			Color:        color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF},
+			CornerRadius: unit.Dp(8),
+			Width:        unit.Dp(1),
+		}.Layout(gtx, func(gtx C) D {
+			return layout.Flex{
+				Axis: layout.Vertical,
+			}.Layout(gtx,
+				layout.Rigid(func(gtx C) D {
+					inset := layout.Inset{Left: unit.Dp(40), Right: unit.Dp(40), Top: unit.Dp(20)}
+					e := material.Label(th, 20, "Edit Example")
+					e.TextSize = 20
+					e.Font.Typeface = "Go Mono"
+					return inset.Layout(gtx, func(gtx C) D {
+						return e.Layout(gtx)
+					})
+				}),
+				layout.Rigid(func(gtx C) D {
+					if p.FilenameInput.Text() == "" {
+						p.FilenameInput.SetText(p.SelectedRow.Filename)
+					}
+					return layout.Inset{Left: unit.Dp(40), Right: unit.Dp(40), Top: unit.Dp(20)}.Layout(gtx, func(gtx C) D {
+						p.FilenameInput.Alignment = p.inputAlignment
+						return p.FilenameInput.Layout(gtx, th, "FileName")
+					})
+				}),
+
+				layout.Rigid(func(gtx C) D {
+					if p.FolderInput.Text() == "" {
+						p.FolderInput.SetText(p.SelectedRow.Folder)
+					}
+					return layout.Inset{Left: unit.Dp(40), Right: unit.Dp(40)}.Layout(gtx, func(gtx C) D {
+						p.FolderInput.Alignment = p.inputAlignment
+						return p.FolderInput.Layout(gtx, th, "Folder")
+					})
+				}),
+				layout.Rigid(func(gtx C) D {
+					inset := layout.Inset{Left: unit.Dp(40), Right: unit.Dp(40)}
+					p.priceInput.Prefix = func(gtx C) D {
+						th := *th
+						th.Palette.Fg = color.NRGBA{R: 100, G: 100, B: 100, A: 255}
+						return material.Label(&th, th.TextSize, "$").Layout(gtx)
+					}
+					p.priceInput.Suffix = func(gtx C) D {
+						th := *th
+						th.Palette.Fg = color.NRGBA{R: 100, G: 100, B: 100, A: 255}
+						return material.Label(&th, th.TextSize, ".00").Layout(gtx)
+					}
+					p.priceInput.SingleLine = true
+					p.priceInput.Alignment = p.inputAlignment
+					return inset.Layout(gtx, func(gtx C) D {
+						return p.priceInput.Layout(gtx, th, "Price")
+					})
+				}),
+				layout.Rigid(func(gtx C) D {
+					inset := layout.Inset{Left: unit.Dp(40), Right: unit.Dp(40)}
+					if err := func() string {
+						for _, r := range p.IDInput.Text() {
+							if !unicode.IsDigit(r) {
+								return "Must contain only digits"
+							}
+						}
+						return ""
+					}(); err != "" {
+						p.IDInput.SetError(err)
+					} else {
+						p.IDInput.ClearError()
+					}
+					p.IDInput.SingleLine = true
+					p.IDInput.Alignment = p.inputAlignment
+					return inset.Layout(gtx, func(gtx C) D {
+						return p.IDInput.Layout(gtx, th, "ID")
+					})
+				}),
+				layout.Rigid(func(gtx C) D {
+					inset := layout.Inset{Left: unit.Dp(40), Right: unit.Dp(40)}
+					if p.tweetInput.TextTooLong() {
+						p.tweetInput.SetError("Too many characters")
+					} else {
+						p.tweetInput.ClearError()
+					}
+					p.tweetInput.CharLimit = 128
+					p.tweetInput.Helper = "Character count"
+					p.tweetInput.Alignment = p.inputAlignment
+					return inset.Layout(gtx, func(gtx C) D {
+						return p.tweetInput.Layout(gtx, th, "Note")
+					})
+				}),
+				layout.Rigid(func(gtx C) D {
+					return layout.Flex{
+						Axis:      layout.Horizontal,
+						Alignment: layout.Middle,
+					}.Layout(
+						gtx,
+						layout.Flexed(1, layout.Spacer{}.Layout),
+						layout.Rigid(func(gtx C) D {
+							inset := layout.Inset{Right: unit.Dp(20)}
+							return inset.Layout(gtx, func(gtx C) D {
+								btn := material.Button(th, &p.ConfirmBtn, "Update")
+								if p.ConfirmBtn.Clicked(gtx) {
+									// Xử lý xác nhận chỉnh sửa
+								}
+								return btn.Layout(gtx)
+							})
+						}),
+						layout.Rigid(func(gtx C) D {
+							inset := layout.Inset{Right: unit.Dp(40)} // Cách lề phải 20 dp
+							return inset.Layout(gtx, func(gtx C) D {
+								btn := material.Button(th, &p.CancelBtn, "Cancel")
+								btn.Background = color.NRGBA{R: 255, G: 200, B: 100, A: 255}
+								if p.CancelBtn.Clicked(gtx) {
+									p.ShowEditConfirmation = false
+									p.SelectedRow = nil
+								}
+								return btn.Layout(gtx)
+							})
+						}),
+					)
+				}),
+			)
+		})
+	})
 }

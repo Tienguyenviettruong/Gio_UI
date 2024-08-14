@@ -2,6 +2,7 @@ package importF
 
 import (
 	page "Gio_UI/UI/app"
+	"Gio_UI/UI/icon"
 	"fmt"
 	"gioui.org/app"
 	"gioui.org/f32"
@@ -40,7 +41,7 @@ func New(router *page.Router, th *material.Theme) *Page {
 func (p *Page) NavItem() component.NavItem {
 	return component.NavItem{
 		Name: "Import",
-		Icon: p.Icon.CheckBoxChecked,
+		Icon: icon.ImportIcon,
 	}
 }
 

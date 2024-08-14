@@ -1,6 +1,11 @@
 package Tree
 
 import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+
 	"gioui.org/font"
 	"gioui.org/layout"
 	"gioui.org/unit"
@@ -14,6 +19,7 @@ import (
 
 type TreeNode struct {
 	Text     string
+	Icon     widget.Image
 	Children []TreeNode
 	component.DiscloserState
 	font font.Style
@@ -24,8 +30,6 @@ type (
 	D = layout.Dimensions
 )
 
-// Page holds the state for a page demonstrating the features of
-// the AppBar component.
 type Page struct {
 	TreeNode
 	widget.List
@@ -38,37 +42,39 @@ type Page struct {
 	AddBtn widget.Clickable
 }
 
-// New constructs a Page with the provided router.
 func New(router *page.Router) *Page {
-	return &Page{
+	page := &Page{
 		Router: router,
-		TreeNode: TreeNode{
-			font: font.Italic,
-			Text: "Expand Me",
-			Children: []TreeNode{
-				{
-					Text: "Disclosers can be (expand me)...",
-					Children: []TreeNode{
-						{
-							Text: "...nested to arbitrary depths.",
-						},
-						{
-							Text: "There are also types available to customize the look and feel of the discloser:",
-							Children: []TreeNode{
-								{
-									Text: "• DiscloserStyle lets you provide your own control instead of the default triangle used here.",
-								},
-								{
-									Text: "• DiscloserArrowStyle lets you alter the presentation of the triangle used here, like changing its color, size, left/right anchoring, or margin.",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		Input: widget.Editor{SingleLine: true},
+		Input:  widget.Editor{SingleLine: true},
 	}
+
+	if err := page.LoadTreeData("C:/Users/truongtnv/Desktop/JobFIMS_New/Gio_UI/UI/app/root.json"); err != nil {
+		fmt.Println("Error loading tree data:", err)
+	}
+
+	return page
+}
+
+// LoadTreeData reads JSON data from a file and converts it to TreeNode structure.
+func (p *Page) LoadTreeData(filePath string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		return err
+	}
+
+	var rootNode TreeNode
+	if err := json.Unmarshal(data, &rootNode); err != nil {
+		return err
+	}
+
+	p.TreeNode = rootNode
+	return nil
 }
 
 var _ page.Page = &Page{}
@@ -84,28 +90,41 @@ func (p *Page) Overflow() []component.OverflowAction {
 func (p *Page) NavItem() component.NavItem {
 	return component.NavItem{
 		Name: "Tree",
-		Icon: icon.VisibilityIcon,
+		Icon: icon.FolderIcon,
 	}
 }
 
 func (p *Page) LayoutTreeNode(gtx C, th *material.Theme, tn *TreeNode) D {
-	e := material.Body1(th, tn.Text)
-	e.Font.Style = font.Italic
-	if len(tn.Children) == 0 {
-		return layout.UniformInset(unit.Dp(2)).Layout(gtx, e.Layout)
-	}
-	children := make([]layout.FlexChild, 0, len(tn.Children))
-	for i := range tn.Children {
-		child := &tn.Children[i]
-		children = append(children, layout.Rigid(
-			func(gtx C) D {
-				return p.LayoutTreeNode(gtx, th, child)
-			}))
-	}
-	return component.SimpleDiscloser(th, &tn.DiscloserState).Layout(gtx, e.Layout,
-		func(gtx C) D {
-			return layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)
-		})
+	return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
+		layout.Rigid(func(gtx C) D {
+			return layout.Inset{Right: unit.Dp(8)}.Layout(gtx, func(gtx C) D {
+				return icon.FolderIcon.Layout(gtx, th.ContrastBg)
+			})
+		}),
+		layout.Rigid(func(gtx C) D {
+			e := material.Body1(th, tn.Text)
+			e.Font.Style = font.Italic
+			if len(tn.Children) == 0 {
+				return layout.UniformInset(unit.Dp(2)).Layout(gtx, e.Layout)
+			}
+			children := make([]layout.FlexChild, 0, len(tn.Children))
+			for i := range tn.Children {
+				child := &tn.Children[i]
+				children = append(children, layout.Rigid(
+					func(gtx C) D {
+						return p.LayoutTreeNode(gtx, th, child)
+					}))
+			}
+			return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
+				layout.Rigid(func(gtx C) D {
+					return component.SimpleDiscloser(th, &tn.DiscloserState).Layout(gtx, e.Layout,
+						func(gtx C) D {
+							return layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)
+						})
+				}),
+			)
+		}),
+	)
 }
 
 func (p *Page) LayoutCustomDiscloser(gtx C, th *material.Theme) D {
@@ -129,7 +148,6 @@ func (p *Page) LayoutCustomDiscloser(gtx C, th *material.Theme) D {
 func (p *Page) Layout(gtx C, th *material.Theme) D {
 	p.List.Axis = layout.Vertical
 
-	// Handle adding a new node
 	if p.AddBtn.Clicked(gtx) {
 		newNode := TreeNode{
 			Text: p.Input.Text(),
@@ -153,7 +171,6 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 	})
 }
 
-// LayoutAddNode displays the input field and the "Add" button
 func (p *Page) LayoutAddNode(gtx C, th *material.Theme) D {
 	return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
 		layout.Rigid(func(gtx C) D {

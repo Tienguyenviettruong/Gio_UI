@@ -9,7 +9,6 @@ import (
 	"Gio_UI/UI/app/importF"
 	"Gio_UI/UI/app/menu"
 	"Gio_UI/UI/app/table"
-	app2 "Gio_UI/UI/app/toolbar"
 	"Gio_UI/UI/icon"
 	"flag"
 	"gioui.org/x/component"
@@ -70,7 +69,7 @@ func loop(w *app.Window) error {
 	}
 	router := page.NewRouter()
 	router.Register(0, header.New(&router))
-	router.Register(1, app2.New(&router))
+	//router.Register(1, app2.New(&router))
 	router.Register(2, importF.New(&router, th))
 	//router.Register(3, dashboard.New(&router))
 	//router.Register(2, textfield.New(&router))

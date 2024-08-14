@@ -37,8 +37,7 @@ func NewRouter() Router {
 
 	bar := component.NewAppBar(modal)
 	bar.NavigationIcon = icon.AccountBalanceIcon
-	//greenColor := color.NRGBA{R: 0, G: 255, B: 0, A: 255} // Định nghĩa màu xanh lá cây
-	//bar.Background = greenColor
+
 	na := component.VisibilityAnimation{
 		State:    component.Visible,
 		Duration: time.Millisecond * 250,

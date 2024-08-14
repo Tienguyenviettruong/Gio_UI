@@ -3,10 +3,40 @@ package Table
 import (
 	page "Gio_UI/UI/app"
 	"database/sql"
+	"gioui.org/text"
 	"gioui.org/widget"
+	"gioui.org/x/component"
 	"log"
 	"time"
 )
+
+type Page struct {
+	widget.List
+	*page.Router
+	ReadBtn                widget.Clickable
+	SearchBtn              widget.Clickable
+	Data                   []DataRow
+	SearchEditor           widget.Editor
+	CurrentPage            int
+	RowsPerPage            int
+	PreviousBtn            widget.Clickable
+	NextBtn                widget.Clickable
+	SearchID               string
+	ShowDeleteConfirmation bool
+	//ConfirmDeleteBtn widget.Clickable
+	EditBtns                                                    []widget.Clickable
+	AddBtns                                                     []widget.Clickable
+	DelBtns                                                     []widget.Clickable
+	DeleteID                                                    int // ID của bản ghi cần xóa
+	ShowConfirm                                                 bool
+	ShowEditConfirmation                                        bool
+	SelectedRow                                                 *DataRow
+	ConfirmBtn                                                  widget.Clickable
+	CancelBtn                                                   widget.Clickable
+	FilenameInput, FolderInput, priceInput, tweetInput, IDInput component.TextField
+	inputAlignment                                              text.Alignment
+	inputAlignmentEnum                                          widget.Enum
+}
 
 func New(router *page.Router) *Page {
 	numRows := 10
@@ -20,33 +50,11 @@ func New(router *page.Router) *Page {
 	}
 }
 
-//type Page struct {
-//	widget.List
-//	*page.Router
-//	ReadBtn                widget.Clickable
-//	SearchBtn              widget.Clickable
-//	Data                   []DataRow
-//	SearchEditor           widget.Editor
-//	CurrentPage            int
-//	RowsPerPage            int
-//	PreviousBtn            widget.Clickable
-//	NextBtn                widget.Clickable
-//	SearchID               string
-//	ShowDeleteConfirmation bool
-//	SelectedRowToDelete    *DataRow
-//	ConfirmDeleteBtn       widget.Clickable
-//	CancelDeleteBtn        widget.Clickable
-//
-//}
-
 type DataRow struct {
 	ID       int
 	Filename string
 	Modified time.Time
 	Folder   string
-	//EditBtn  widget.Clickable
-	//AddBtn   widget.Clickable
-	//DelBtn   widget.Clickable
 }
 
 func (p *Page) readDataFromDB(dbFile string) []DataRow {
