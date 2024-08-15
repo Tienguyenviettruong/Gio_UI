@@ -93,8 +93,9 @@ func (r *Router) Layout(gtx layout.Context, th *material.Theme) layout.Dimension
 	if r.ModalNavDrawer.NavDestinationChanged() {
 		r.SwitchTo(r.ModalNavDrawer.CurrentNavDestination())
 	}
-	paint.Fill(gtx.Ops, th.Palette.Bg)
+	paint.Fill(gtx.Ops, th.Palette.ContrastFg)
 	content := layout.Flexed(1, func(gtx layout.Context) layout.Dimensions {
+		//paint.Fill(gtx.Ops, color.NRGBA{R: 255, G: 200, B: 100, A: 255})
 		return layout.Flex{}.Layout(gtx,
 			layout.Rigid(func(gtx layout.Context) layout.Dimensions {
 				gtx.Constraints.Max.X /= 6
@@ -106,7 +107,7 @@ func (r *Router) Layout(gtx layout.Context, th *material.Theme) layout.Dimension
 		)
 	})
 	bar := layout.Rigid(func(gtx layout.Context) layout.Dimensions {
-		paint.Fill(gtx.Ops, color.NRGBA{R: 10, G: 10, B: 10, A: 10})
+		paint.Fill(gtx.Ops, color.NRGBA{R: 20, G: 20, B: 10, A: 20})
 		return r.AppBar.Layout(gtx, th, "Menu", "Actions")
 	})
 	flex := layout.Flex{Axis: layout.Vertical}

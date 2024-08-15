@@ -53,7 +53,7 @@ func (p *Page) Actions() []component.AppBarAction {
 				btn := component.SimpleIconButton(bg, fg, &p.heartBtn, icon.HeartIcon)
 				btn.Background = bg
 				if p.favorited {
-					btn.Color = color.NRGBA{R: 20, A: 55}
+					btn.Color = color.NRGBA{R: 255, G: 200, B: 100, A: 255}
 				} else {
 					btn.Color = fg
 				}
@@ -139,7 +139,7 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 								},
 							},
 						)
-						p.Router.AppBar.ToggleContextual(gtx.Now, "Contextual Title")
+						p.Router.AppBar.StartContextual(gtx.Now, "Contextual Title")
 					}
 					return material.Button(th, &p.contextBtn, "Trigger").Layout(gtx)
 				})
