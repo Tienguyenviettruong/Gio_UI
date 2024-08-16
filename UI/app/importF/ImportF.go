@@ -87,7 +87,7 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 				layout.Flexed(1, func(gtx C) D {
 					return material.Editor(th, &p.colsInput, "Columns").Layout(gtx)
 				}),
-				layout.Rigid(func(gtx C) D {
+				layout.Flexed(1, func(gtx C) D {
 					btn := material.Button(th, &p.DrawButton, "Edit")
 					btn.TextSize = unit.Sp(12)
 					return btn.Layout(gtx)
@@ -96,13 +96,7 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 		}),
 
 		layout.Rigid(func(gtx C) D {
-			return layout.Inset{
-				Left:   unit.Dp(8),
-				Right:  unit.Dp(8),
-				Top:    unit.Dp(8),
-				Bottom: unit.Dp(8),
-			}.Layout(gtx, func(gtx C) D {
-				// Tạo border cho button
+			return layout.Inset{Left: unit.Dp(8), Right: unit.Dp(8), Top: unit.Dp(8), Bottom: unit.Dp(8)}.Layout(gtx, func(gtx C) D {
 				border := widget.Border{
 					Color:        color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF},
 					CornerRadius: unit.Dp(8),
@@ -111,10 +105,30 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 
 				return layout.Stack{}.Layout(gtx,
 					layout.Stacked(func(gtx C) D {
-						// Vẽ border xung quanh
 						return border.Layout(gtx, func(gtx C) D {
 							item := component.MenuItem(th, &p.fileImportBtn, "Import")
 							item.Icon = icon.ImportIcon
+							item.Label.TextSize = 12
+							item.IconSize = 14
+							return item.Layout(gtx)
+						})
+					}),
+				)
+			})
+		}),
+		layout.Rigid(func(gtx C) D {
+			return layout.Inset{Left: unit.Dp(8), Right: unit.Dp(8), Top: unit.Dp(8), Bottom: unit.Dp(8)}.Layout(gtx, func(gtx C) D {
+				border := widget.Border{
+					Color:        color.NRGBA{R: 0x60, G: 0x60, B: 0x60, A: 0xFF},
+					CornerRadius: unit.Dp(8),
+					Width:        unit.Dp(1),
+				}
+
+				return layout.Stack{}.Layout(gtx,
+					layout.Stacked(func(gtx C) D {
+						return border.Layout(gtx, func(gtx C) D {
+							item := component.MenuItem(th, &p.fileImportBtn, "Download")
+							item.Icon = icon.DownloadIcon
 							item.Label.TextSize = 12
 							item.IconSize = 14
 							return item.Layout(gtx)
@@ -348,7 +362,7 @@ func (p *Page) LayoutUpload(gtx C, th *material.Theme) D {
 						gtx,
 						layout.Flexed(1, layout.Spacer{}.Layout),
 						layout.Rigid(func(gtx C) D {
-							inset := layout.Inset{Right: unit.Dp(20)}
+							inset := layout.Inset{Right: unit.Dp(20), Top: unit.Dp(10)}
 							return inset.Layout(gtx, func(gtx C) D {
 								btn := material.Button(th, &p.confirmButton, "Update")
 								if p.confirmButton.Clicked(gtx) {
@@ -358,7 +372,7 @@ func (p *Page) LayoutUpload(gtx C, th *material.Theme) D {
 							})
 						}),
 						layout.Rigid(func(gtx C) D {
-							inset := layout.Inset{Right: unit.Dp(40)} // Cách lề phải 20 dp
+							inset := layout.Inset{Right: unit.Dp(40), Top: unit.Dp(10)} // Cách lề phải 20 dp
 							return inset.Layout(gtx, func(gtx C) D {
 								btn := material.Button(th, &p.cancelButton, "Cancel")
 								btn.Background = color.NRGBA{R: 255, G: 200, B: 100, A: 255}

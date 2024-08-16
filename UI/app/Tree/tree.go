@@ -38,8 +38,9 @@ type Page struct {
 	font.Style
 
 	// New fields for input and button
-	Input  widget.Editor
-	AddBtn widget.Clickable
+	Input   widget.Editor
+	AddBtn  widget.Clickable
+	ViewBtn widget.Clickable
 }
 
 func New(router *page.Router) *Page {
@@ -97,15 +98,14 @@ func (p *Page) NavItem() component.NavItem {
 func (p *Page) LayoutTreeNode(gtx C, th *material.Theme, tn *TreeNode) D {
 	return layout.Flex{Axis: layout.Horizontal}.Layout(gtx,
 		layout.Rigid(func(gtx C) D {
-			return layout.Inset{Right: unit.Dp(8)}.Layout(gtx, func(gtx C) D {
-				return icon.FolderIcon.Layout(gtx, th.ContrastBg)
-			})
-		}),
-		layout.Rigid(func(gtx C) D {
-			e := material.Body1(th, tn.Text)
-			e.Font.Style = font.Italic
+			//
+			//e := material.Body1(th, tn.Text)
+			//e.Font.Style = font.Italic
+			item := component.MenuItem(th, &p.AddBtn, tn.Text)
+			item.Icon = icon.FolderIcon
+			item.IconColor = th.ContrastBg
 			if len(tn.Children) == 0 {
-				return layout.UniformInset(unit.Dp(2)).Layout(gtx, e.Layout)
+				return layout.UniformInset(unit.Dp(2)).Layout(gtx, item.Layout)
 			}
 			children := make([]layout.FlexChild, 0, len(tn.Children))
 			for i := range tn.Children {
@@ -117,7 +117,7 @@ func (p *Page) LayoutTreeNode(gtx C, th *material.Theme, tn *TreeNode) D {
 			}
 			return layout.Flex{Axis: layout.Vertical}.Layout(gtx,
 				layout.Rigid(func(gtx C) D {
-					return component.SimpleDiscloser(th, &tn.DiscloserState).Layout(gtx, e.Layout,
+					return component.SimpleDiscloser(th, &tn.DiscloserState).Layout(gtx, item.Layout,
 						func(gtx C) D {
 							return layout.Flex{Axis: layout.Vertical}.Layout(gtx, children...)
 						})

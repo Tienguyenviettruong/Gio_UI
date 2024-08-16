@@ -92,3 +92,11 @@ var ImportIcon *widget.Icon = func() *widget.Icon {
 	icon, _ := widget.NewIcon(icons.FileFileUpload)
 	return icon
 }()
+var FileIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.EditorInsertDriveFile)
+	return icon
+}()
+var DownloadIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.FileFileDownload)
+	return icon
+}()
