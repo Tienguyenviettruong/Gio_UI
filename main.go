@@ -66,18 +66,18 @@ func loop(w *app.Window) error {
 			return e.Err
 		case app.FrameEvent:
 			gtx := app.NewContext(&ops, e)
-			//if UI.LoginScreen {
-			//	//UI.LayoutLogin(gtx, th)
-			//	UI.DatabseLayout(gtx, th)
-			//	//router.Layout(gtx, th)
-			//} else {
-			//	UI.DatabseLayout(gtx, th)
-			//}
-			if UI.DBConnected == true && UI.ShowLoginScreen == true {
-				UI.LayoutLogin(gtx, th)
+			if UI.LoginScreen {
+				//UI.LayoutLogin(gtx, th)
+				//UI.DatabseLayout(gtx, th)
+				router.Layout(gtx, th)
 			} else {
 				UI.DatabseLayout(gtx, th)
 			}
+			//if UI.DBConnected == true && UI.ShowLoginScreen == true {
+			//	UI.LayoutLogin(gtx, th)
+			//} else {
+			//	UI.DatabseLayout(gtx, th)
+			//}
 			e.Frame(gtx.Ops)
 		}
 	}

@@ -145,11 +145,12 @@ func DatabseLayout(gtx layout.Context, th *material.Theme) layout.Dimensions {
 							return inset.Layout(gtx, func(gtx C) D {
 								btn := material.Button(th, &ConnectBtn, "Connect")
 								if ConnectBtn.Clicked(gtx) {
-									err, _ := ConnectDB()
-									if err != false {
+									a, err := ConnectDB()
+									fmt.Println(a)
+									if err != nil {
 										fmt.Println("Connect database failed:", err)
 									} else {
-										DBConnected = true
+										DBConnected = a
 										ShowLoginScreen = true
 									}
 								}
