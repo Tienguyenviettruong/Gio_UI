@@ -1,14 +1,14 @@
 package UI
 
 import (
+	connect "Gio_UI/UI/app/database"
 	"fmt"
 	"gioui.org/layout"
 	"gioui.org/unit"
 	"gioui.org/widget"
 	"gioui.org/widget/material"
-	//oracle "github.com/godoes/gorm-oracle"
-	"github.com/dzwvip/oracle"
-	"gorm.io/gorm"
+
+	_ "gorm.io/gorm"
 	"image/color"
 	"os"
 	"strconv"
@@ -145,7 +145,13 @@ func DatabseLayout(gtx layout.Context, th *material.Theme) layout.Dimensions {
 							return inset.Layout(gtx, func(gtx C) D {
 								btn := material.Button(th, &ConnectBtn, "Connect")
 								if ConnectBtn.Clicked(gtx) {
-									a, err := ConnectDB()
+									host := Host.Text()
+									port, _ := strconv.Atoi(Port.Text())
+									user := User.Text()
+									password := Password.Text()
+									service := Servicename.Text()
+									a, err := connect.ConnectDBOracle(host, port, user, password, service)
+									//a, err := ConnectDB()
 									fmt.Println(a)
 									if err != nil {
 										fmt.Println("Connect database failed:", err)
@@ -164,47 +170,25 @@ func DatabseLayout(gtx layout.Context, th *material.Theme) layout.Dimensions {
 	})
 }
 
-//func connectToDatabase() (bool, error) {
-//	// Lấy dữ liệu từ các ô nhập liệu
+//var db *gorm.DB
+//
+//func ConnectDB() (bool, error) {
 //	host := Host.Text()
 //	port, _ := strconv.Atoi(Port.Text())
 //	user := User.Text()
 //	password := Password.Text()
 //	service := Servicename.Text()
-//	urlDatabase := oracle.BuildUrl(host, port, service, user, password, nil)
-//	err, _ := gorm.Open(oracle.Open(urlDatabase), &gorm.Config{})
-//
-//	//db, err := gorm.Open(oracle.Open(urlDatabase), &gorm.Config{})
-//
+//	dataSourceName := fmt.Sprintf("%s/%s@%s:%d/%s", user, password, host, port, service)
+//	fmt.Println(dataSourceName)
+//	dbConnection, err := gorm.Open(oracle.Open(dataSourceName), &gorm.Config{})
 //	if err != nil {
-//		fmt.Println("Connect database failed", err)
-//	} else {
-//		fmt.Println("Connect DB success !!")
-//		fmt.Println("-----------")
+//		return false, err
 //	}
 //
+//	if err := dbConnection.Raw("select 1").Error; err != nil {
+//		return false, err
+//	}
+//
+//	db = dbConnection
 //	return true, nil
 //}
-
-var db *gorm.DB
-
-func ConnectDB() (bool, error) {
-	host := Host.Text()
-	port, _ := strconv.Atoi(Port.Text())
-	user := User.Text()
-	password := Password.Text()
-	service := Servicename.Text()
-	dataSourceName := fmt.Sprintf("%s/%s@%s:%d/%s", user, password, host, port, service)
-	fmt.Println(dataSourceName)
-	dbConnection, err := gorm.Open(oracle.Open(dataSourceName), &gorm.Config{})
-	if err != nil {
-		return false, err
-	}
-
-	if err := dbConnection.Raw("select 1").Error; err != nil {
-		return false, err
-	}
-
-	db = dbConnection
-	return true, nil
-}

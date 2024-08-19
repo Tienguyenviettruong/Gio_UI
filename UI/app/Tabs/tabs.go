@@ -41,7 +41,7 @@ type Tab struct {
 }
 
 func init() {
-	for i := 1; i <= 10; i++ {
+	for i := 1; i <= 5; i++ {
 		tabs.tabs = append(tabs.tabs,
 			Tab{Title: fmt.Sprintf("Tab %d", i)},
 		)
@@ -73,7 +73,7 @@ func (p *Page) Overflow() []component.OverflowAction {
 func (p *Page) NavItem() component.NavItem {
 	return component.NavItem{
 		Name: "Tabs",
-		Icon: icon.MenuIcon,
+		Icon: icon.TabIcon,
 	}
 }
 
@@ -83,11 +83,6 @@ func (p *Page) Layout(gtx C, th *material.Theme) D {
 			return tabs.list.Layout(gtx, len(tabs.tabs), func(gtx C, tabIdx int) D {
 				t := &tabs.tabs[tabIdx]
 				if t.btn.Clicked(gtx) {
-					//if tabs.selected < tabIdx {
-					//	slider.PushLeft()
-					//} else if tabs.selected > tabIdx {
-					//	slider.PushRight()
-					//}
 					tabs.selected = tabIdx
 				}
 				var tabWidth int

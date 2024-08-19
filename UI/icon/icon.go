@@ -9,7 +9,14 @@ var MenuIcon *widget.Icon = func() *widget.Icon {
 	icon, _ := widget.NewIcon(icons.NavigationMenu)
 	return icon
 }()
-
+var TabIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.ActionTab)
+	return icon
+}()
+var AnalysisIcon *widget.Icon = func() *widget.Icon {
+	icon, _ := widget.NewIcon(icons.Action3DRotation)
+	return icon
+}()
 var RestaurantMenuIcon *widget.Icon = func() *widget.Icon {
 	icon, _ := widget.NewIcon(icons.MapsRestaurantMenu)
 	return icon
